@@ -66,6 +66,13 @@ public class LoanApplication {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(name = "document_file_name")
+    private String documentFileName;
+
+    @Column(name = "document")
+    @Lob
+    private byte[] document;
+
     // New fields for document upload
     @Column(name = "document_path")
     private String documentPath;
@@ -73,5 +80,6 @@ public class LoanApplication {
     @Column(name = "document_uploaded")
     private boolean documentUploaded = false;
 
-    // Getters and setters for new fields (if not using Lombok)
+    @Column(name = "documents_requested", nullable = false)
+    private boolean documentsRequested = false;
 }

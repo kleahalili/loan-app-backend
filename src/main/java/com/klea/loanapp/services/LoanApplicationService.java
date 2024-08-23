@@ -20,38 +20,51 @@ public class LoanApplicationService {
     }
 
     public LoanApplication createLoanApplication(LoanApplication loanApplication) {
-        // Add any additional business logic/validation here before saving the loan application
         return loanApplicationRepository.save(loanApplication);
     }
 
     public void updateLoanApplicationStatus(Long applicationId, String status) {
-        // Fetch loan application by ID
         LoanApplication loanApplication = loanApplicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Loan application not found with id: " + applicationId));
 
-        // Update the status
         loanApplication.setApplicationStatus(status);
-
-        // Save the updated loan application
         loanApplicationRepository.save(loanApplication);
     }
 
-    // Add the findById method
     public Optional<LoanApplication> findById(Long applicationId) {
         return loanApplicationRepository.findById(applicationId);
     }
 
-    // Add the save method to update the LoanApplication
     public LoanApplication save(LoanApplication loanApplication) {
         return loanApplicationRepository.save(loanApplication);
     }
 
-    // New method to get loan application statistics for "Applied", "Approved", and "Rejected"
+    public void requestDocumentUpload(Long applicationId) {
+        LoanApplication loanApplication = loanApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new IllegalArgumentException("Loan application not found with id: " + applicationId));
+
+        loanApplication.setDocumentsRequested(true);
+        loanApplication.setApplicationStatus("Documents Requested");
+
+        loanApplicationRepository.save(loanApplication);
+    }
+
     public LoanApplicationStatisticsDTO getLoanApplicationStatistics() {
         long appliedCount = loanApplicationRepository.countByApplicationStatus("Applied");
         long approvedCount = loanApplicationRepository.countByApplicationStatus("Approved");
         long rejectedCount = loanApplicationRepository.countByApplicationStatus("Rejected");
+        long documentsRequestedCount = loanApplicationRepository.countByApplicationStatus("Documents Requested");
+//        long documentsSubmittedCount = loanApplicationRepository.countByApplicationStatus("Documents Submitted");
 
-        return new LoanApplicationStatisticsDTO(appliedCount, approvedCount, rejectedCount);
+        return new LoanApplicationStatisticsDTO(appliedCount, approvedCount, rejectedCount, documentsRequestedCount);
+    }
+
+    // New method to delete a loan application by its ID
+    public void deleteLoanApplication(Long applicationId) {
+        if (loanApplicationRepository.existsById(applicationId)) {
+            loanApplicationRepository.deleteById(applicationId);
+        } else {
+            throw new IllegalArgumentException("Loan application not found with id: " + applicationId);
+        }
     }
 }
