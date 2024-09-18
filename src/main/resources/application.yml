@@ -4,6 +4,7 @@ spring:
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -11,13 +12,24 @@ spring:
     properties:
       hibernate:
         format_sql: true
-    database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: idfkk81@gmail.com
+    password: "psiu dyxv bhje iais"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 application:
   security:
     jwt:
-      secret-key: fKAtT8Zfyx31ZJ5UXxW4LmWbQlQZoZI6fKAtT8Zfyx31ZJ5UXxW4LmWbQlQZoZI6fKAtT8Zfyx31ZJ5UXxW4LmWbQlQZoZI6
+      secret-key: fKAtT8Zfyx31ZJ5UXxW4LmWbQlQZoZI6fKAtT8Zfyx31ZJ5UXxW4LmWbQlQZoZI6
       expiration: 86400000 # a day
       refresh-token:
         expiration: 604800000 # 7 days

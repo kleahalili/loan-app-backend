@@ -15,6 +15,9 @@ public class LoanApplicationService {
     @Autowired
     private LoanApplicationRepository loanApplicationRepository;
 
+    @Autowired
+    private SendEmailService sendEmailService;
+
     public List<LoanApplication> findAllLoanApplications() {
         return loanApplicationRepository.findAll();
     }
@@ -23,12 +26,36 @@ public class LoanApplicationService {
         return loanApplicationRepository.save(loanApplication);
     }
 
-    public void updateLoanApplicationStatus(Long applicationId, String status) {
+    public String updateLoanApplicationStatus(Long applicationId, String status) {
         LoanApplication loanApplication = loanApplicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Loan application not found with id: " + applicationId));
 
         loanApplication.setApplicationStatus(status);
         loanApplicationRepository.save(loanApplication);
+
+        // Prepare email subject and body based on the status
+        String subject;
+        String body;
+
+        if ("Approved".equalsIgnoreCase(status)) {
+            subject = "Your Loan Application is Approved";
+            body = "Congratulations, your loan application has been approved.";
+        } else if ("Rejected".equalsIgnoreCase(status)) {
+            subject = "Your Loan Application is Rejected";
+            body = "We regret to inform you that your loan application has been rejected.";
+        } else {
+            // Return a message if no email was sent
+            return "Status updated without sending email.";
+        }
+
+        // Get the user's name from the loan application
+        String userName = loanApplication.getFirstName();
+
+        // Send the email with a properly formatted message
+        sendEmailService.sendEmail(loanApplication.getEmailAddress(), subject, body, userName);
+
+        // Return a message indicating that the status was updated and email was sent
+        return "Status updated and email sent to " + loanApplication.getEmailAddress();
     }
 
     public Optional<LoanApplication> findById(Long applicationId) {
@@ -54,12 +81,11 @@ public class LoanApplicationService {
         long approvedCount = loanApplicationRepository.countByApplicationStatus("Approved");
         long rejectedCount = loanApplicationRepository.countByApplicationStatus("Rejected");
         long documentsRequestedCount = loanApplicationRepository.countByApplicationStatus("Documents Requested");
-//        long documentsSubmittedCount = loanApplicationRepository.countByApplicationStatus("Documents Submitted");
 
         return new LoanApplicationStatisticsDTO(appliedCount, approvedCount, rejectedCount, documentsRequestedCount);
     }
 
-    // New method to delete a loan application by its ID
+    // Method to delete a loan application by its ID
     public void deleteLoanApplication(Long applicationId) {
         if (loanApplicationRepository.existsById(applicationId)) {
             loanApplicationRepository.deleteById(applicationId);

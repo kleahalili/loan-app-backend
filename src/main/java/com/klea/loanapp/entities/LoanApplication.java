@@ -1,3 +1,4 @@
+
 package com.klea.loanapp.entities;
 
 import jakarta.persistence.*;
